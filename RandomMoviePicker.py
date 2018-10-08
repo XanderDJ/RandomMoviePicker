@@ -30,8 +30,10 @@ def start_random_video():
 
     videos = filteredvideos if (len(sys.argv) > 1) else videos
     length = len(videos)
-    random_vid = videos[random.randint(0, length - 1)]
-    os.startfile(os.getcwd() + "/" + random_vid)
-
+    if length > 0:
+        random_vid = videos[random.randint(0, length - 1)]
+        os.startfile(os.getcwd() + "/" + random_vid)
+    else:
+        print("There were no videos with any of those tags or there were no videos in general")
 
 start_random_video()
