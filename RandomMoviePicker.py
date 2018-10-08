@@ -12,7 +12,7 @@ def get_files_that_end_with(path, end_string):
     for file in executed_path:
         if file.endswith(end_string):
             lst.append(file)
-        elif not dot.findall(file):
+        elif os.path.isdir(os.path.join(path, file)):
             lst.extend([file + "/" + vid for vid in get_files_that_end_with(path + "/" + file, end_string)])
     return lst
 
@@ -35,5 +35,6 @@ def start_random_video():
         os.startfile(os.getcwd() + "/" + random_vid)
     else:
         print("There were no videos with any of those tags or there were no videos in general")
+
 
 start_random_video()
