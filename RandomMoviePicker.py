@@ -25,7 +25,7 @@ def start_random_video():
         for x in range(1, len(sys.argv)):
             tag = sys.argv[x]
             tags.append(tag)
-            f = lambda vid: tag in vid
+            f = lambda vid: tag.lower() in vid.lower()
             filteredvideos.extend(list(filter(f, videos)))
 
     videos = filteredvideos if (len(sys.argv) > 1) else videos
