@@ -13,7 +13,10 @@ def get_files_that_end_with(path, end_string):
         if file.endswith(end_string):
             lst.append(file)
         elif os.path.isdir(os.path.join(path, file)):
-            lst.extend([file + "/" + vid for vid in get_files_that_end_with(path + "/" + file, end_string)])
+            try:
+                lst.extend([file + "/" + vid for vid in get_files_that_end_with(path + "/" + file, end_string)])
+            except WindowsError:
+                print("This program wasn't allowed to enter this directory: \"" + file + "\"")
     return lst
 
 
