@@ -1,43 +1,108 @@
+import ctypes
 import os
 import re
-import random
 import sys
+
+
+def load_videos():
+    try:
+        storage = open("data.dat", 'r')
+    except Exception:
+        storage = open("data.dat", "w")
+        storage.flush()
+        storage.close()
+        ctypes.windll.kernel32.SetFileAttributesW(os.getcwd() + "\\" + "data.dat", 2)
+        storage = open("data.dat", "r")
+    st = set()
+    for line in storage:
+        st.add(line.rstrip())
+    storage.close()
+    return st
 
 
 def get_files_that_end_with(path, end_string):
     dot = re.compile("\.")
     executed_path = os.listdir(path)
-    lst = []
+    lst = set()
 
     for file in executed_path:
         if file.endswith(end_string):
-            lst.append(file)
+            lst.add(file)
         elif os.path.isdir(os.path.join(path, file)):
             try:
-                lst.extend([file + "/" + vid for vid in get_files_that_end_with(path + "/" + file, end_string)])
+                lst.update([file + "/" + vid for vid in get_files_that_end_with(path + "/" + file, end_string)])
             except WindowsError:
-                print("This program wasn't allowed to enter this directory: \"" + file + "\"")
+                pass
     return lst
 
 
+def get_video_name(path_to_vid):
+    split = path_to_vid.split("/")
+    match = re.match(r"^(.*)\.mp4", split[-1])
+    return match.group(1)
+
+
+def watched_video(video):
+    storage = open("data.dat", "a")
+    storage.write(video + "\n")
+    storage.flush()
+    storage.close()
+
+
+def process_args(argv):
+    args = argv[1:]
+    for arg in args:
+        pass
+
+
+def filter(vid):
+    """
+        Returns true if vid matches tags passed by argv
+    :param vid: the video to check
+    :return: boolean
+    """
+
+
+
+    return True
+
+
 def start_random_video():
+    videos_already_watched = load_videos()
     videos = get_files_that_end_with(os.getcwd(), ".mp4")
     tags = []
-    filteredvideos = []
+    filteredvideos = set()
     if len(sys.argv) > 1:
         for x in range(1, len(sys.argv)):
             tag = sys.argv[x]
             tags.append(tag)
             f = lambda vid: tag.lower() in vid.lower()
-            filteredvideos.extend(list(filter(f, videos)))
+            filteredvideos.update(list(filter(f, videos)))
 
     videos = filteredvideos if (len(sys.argv) > 1) else videos
-    length = len(videos)
-    if length > 0:
-        random_vid = videos[random.randint(0, length - 1)]
+    videos_not_watched = videos - videos_already_watched
+    length = len(videos_not_watched)
+
+    if len(sys.argv) > 1 and len(videos) > 0:
+        random_vid = videos.pop()
+        vid_name = get_video_name(random_vid)
+        print("You're now watching : \"" + vid_name + "\"")
         os.startfile(os.getcwd() + "/" + random_vid)
-    else:
+
+    elif len(videos_not_watched) > 0:
+        random_vid = videos_not_watched.pop()
+        vid_name = get_video_name(random_vid)
+        print("You're now watching : \"" + vid_name + "\"")
+        watched_video(random_vid)
+        os.startfile(os.getcwd() + "/" + random_vid)
+
+    elif len(videos) == 0:
         print("There were no videos with any of those tags or there were no videos in general")
+
+    else:
+        print("you've opened every video in the directories, flushing data and restarting")
+        os.remove(os.getcwd() + "\\" + 'data.dat')
+        start_random_video()
 
 
 start_random_video()
