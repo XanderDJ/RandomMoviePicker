@@ -31,7 +31,7 @@ class BooleanTreeNode:
             return left_expression_value or right_expression_value
 
         else:
-            return self.value in vid
+            return self.value.lower() in vid.lower()
 
 
 class Tokenizer:
