@@ -2,6 +2,7 @@ import ctypes
 import os
 import re
 import sys
+from BooleanTree import BooleanParser
 
 
 def load_videos():
@@ -62,8 +63,6 @@ def filter(vid):
     :return: boolean
     """
 
-
-
     return True
 
 
@@ -73,11 +72,9 @@ def start_random_video():
     tags = []
     filteredvideos = set()
     if len(sys.argv) > 1:
-        for x in range(1, len(sys.argv)):
-            tag = sys.argv[x]
-            tags.append(tag)
-            f = lambda vid: tag.lower() in vid.lower()
-            filteredvideos.update(list(filter(f, videos)))
+        parser = BooleanParser(sys.argv[1:])
+        f = lambda vid: parser.get_boolean_value(vid)
+        filteredvideos.update(list(filter(f, videos)))
 
     videos = filteredvideos if (len(sys.argv) > 1) else videos
     videos_not_watched = videos - videos_already_watched
