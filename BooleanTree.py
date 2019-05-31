@@ -63,15 +63,15 @@ class Tokenizer:
                 string += term + " "
             self.expression = string[:-1]
         import re
-        reg = re.compile(r'(\bAND\b|&&|\|\||\bOR\b|\(|\))')
+        reg = re.compile(r'(\bAND\b|&&|\|\||\bOR\b|\(|\)|and|or|And|Or)')
         self.tokens = reg.split(self.expression)
         self.tokens = [t.strip() for t in self.tokens if t.strip() != '']
 
         self.tokenTypes = []
         for t in self.tokens:
-            if t == 'AND' or t == "&&":
+            if t == 'AND' or t == "&&" or t == "And" or t == "and":
                 self.tokenTypes.append(NodeType.AND)
-            elif t == 'OR' or t == "||":
+            elif t == 'OR' or t == "||" or t == "or" or t == "Or":
                 self.tokenTypes.append(NodeType.OR)
             elif t == '(':
                 self.tokenTypes.append(NodeType.OPEN_BRACKET)
