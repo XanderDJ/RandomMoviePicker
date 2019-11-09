@@ -61,7 +61,7 @@ def get_filtered_videos(videos):
     parser = BooleanParser(boolean_string)
     filtered_videos = set()
     for vid in videos:
-        if parser.get_boolean_value(vid):
+        if parser.get_boolean_value(vid[:len(vid)-4]):
             filtered_videos.add(vid)
     return filtered_videos
 
