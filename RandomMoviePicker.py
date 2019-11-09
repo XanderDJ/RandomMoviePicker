@@ -42,6 +42,9 @@ def get_video_name(path_to_vid):
     match = re.match(r"^(.*)\.mp4", split[-1])
     return match.group(1)
 
+def get_folder_name(path_to_vid,vid_name):
+    return path_to_vid[:len(path_to_vid) - (len(vid_name)+4)]
+
 
 def watched_video(video):
     storage = open("data.dat", "a")
@@ -77,7 +80,8 @@ def start_random_video():
     if len(sys.argv) > 1 and len(videos) > 0:
         random_vid = videos.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name[:len(vid_name) - 4] + "\"")
+        folder_name = get_folder_name(random_vid,vid_name)
+        print("You're now watching : \"" + vid_name + "\" in :\"" + folder_name + "\"")
         os.startfile(os.getcwd() + "/" + random_vid)
         return
 
@@ -86,7 +90,8 @@ def start_random_video():
     if len(videos_not_watched) > 0 and len(sys.argv) == 1:
         random_vid = videos_not_watched.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name[:len(vid_name) - 4] + "\"")
+        folder_name = get_folder_name(random_vid, vid_name)
+        print("You're now watching : \"" + vid_name + "\" in :\"" + folder_name + "\"")
         watched_video(random_vid)
         os.startfile(os.getcwd() + "/" + random_vid)
 
