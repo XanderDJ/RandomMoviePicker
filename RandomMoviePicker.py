@@ -50,46 +50,43 @@ def watched_video(video):
     storage.close()
 
 
-def process_args(argv):
-    args = argv[1:]
-    for arg in args:
-        pass
-
-
-def filter(vid):
+def get_filtered_videos(videos):
     """
         Returns true if vid matches tags passed by argv
     :param vid: the video to check
     :return: boolean
     """
 
-    return True
+    boolean_string = sys.argv[1:]
+    parser = BooleanParser(boolean_string)
+    filtered_videos = set()
+    for vid in videos:
+        if parser.get_boolean_value(vid):
+            filtered_videos.add(vid)
+    return filtered_videos
 
 
 def start_random_video():
     videos_already_watched = load_videos()
     videos = get_files_that_end_with(os.getcwd(), ".mp4")
-    tags = []
-    filteredvideos = set()
-    if len(sys.argv) > 1:
-        parser = BooleanParser(sys.argv[1:])
-        f = lambda vid: parser.get_boolean_value(vid[:len(vid) -4])
-        filteredvideos.update(list(filter(f, videos)))
 
-    videos = filteredvideos if (len(sys.argv) > 1) else videos
-    videos_not_watched = videos - videos_already_watched
-    length = len(videos_not_watched)
+    # If no extra arguments were given the videos do not need to be filtered.
+    videos = videos if (len(sys.argv) == 1) else get_filtered_videos(videos)
 
+    # Extra arguments were passed and videos were found
     if len(sys.argv) > 1 and len(videos) > 0:
         random_vid = videos.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name[:len(vid_name) -4] + "\"")
+        print("You're now watching : \"" + vid_name[:len(vid_name) - 4] + "\"")
         os.startfile(os.getcwd() + "/" + random_vid)
+        return
 
-    elif len(videos_not_watched) > 0:
+    # No extra arguments were passed and there are still videos that haven't been watched yet
+    videos_not_watched = videos - videos_already_watched
+    if len(videos_not_watched) > 0 and len(sys.argv) == 1:
         random_vid = videos_not_watched.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name[:len(vid_name) -4] + "\"")
+        print("You're now watching : \"" + vid_name[:len(vid_name) - 4] + "\"")
         watched_video(random_vid)
         os.startfile(os.getcwd() + "/" + random_vid)
 
