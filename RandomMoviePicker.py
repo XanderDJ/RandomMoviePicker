@@ -98,6 +98,7 @@ def start_random_video():
     elif len(videos) == 0:
         print("There were no videos with any of those tags or there were no videos in general")
 
+    # Videos_not_watched was empty which means all the movies in every folder has been watched.
     else:
         print("you've opened every video in the directories, flushing data and restarting")
         os.remove(os.getcwd() + "\\" + 'data.dat')
