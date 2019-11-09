@@ -73,7 +73,7 @@ def start_random_video():
     filteredvideos = set()
     if len(sys.argv) > 1:
         parser = BooleanParser(sys.argv[1:])
-        f = lambda vid: parser.get_boolean_value(vid)
+        f = lambda vid: parser.get_boolean_value(vid[:len(vid) -4])
         filteredvideos.update(list(filter(f, videos)))
 
     videos = filteredvideos if (len(sys.argv) > 1) else videos
@@ -83,13 +83,13 @@ def start_random_video():
     if len(sys.argv) > 1 and len(videos) > 0:
         random_vid = videos.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name + "\"")
+        print("You're now watching : \"" + vid_name[:len(vid_name) -4] + "\"")
         os.startfile(os.getcwd() + "/" + random_vid)
 
     elif len(videos_not_watched) > 0:
         random_vid = videos_not_watched.pop()
         vid_name = get_video_name(random_vid)
-        print("You're now watching : \"" + vid_name + "\"")
+        print("You're now watching : \"" + vid_name[:len(vid_name) -4] + "\"")
         watched_video(random_vid)
         os.startfile(os.getcwd() + "/" + random_vid)
 

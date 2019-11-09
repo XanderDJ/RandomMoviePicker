@@ -63,7 +63,7 @@ class Tokenizer:
                 string += term + " "
             self.expression = string[:-1]
         import re
-        reg = re.compile(r'(\bAND\b|&&|\|\||\bOR\b|\(|\)|and|or|And|Or)')
+        reg = re.compile(r'(\bAND\b|\b&&\b|\b\|\|\b|\bOR\b|\(|\)|\band\b|\bor\b|\bAnd\b|\bOr\b)')
         self.tokens = reg.split(self.expression)
         self.tokens = [t.strip() for t in self.tokens if t.strip() != '']
 
