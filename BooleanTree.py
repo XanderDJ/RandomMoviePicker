@@ -124,12 +124,15 @@ class BooleanParser:
         return not1
 
     def parse_NOT_term(self):
-        if self.tokenizer.nextTokenType() == NodeType.NOT and self.tokenizer.hasNext():
-            self.tokenizer.next()
-            expression = self.parse_condition()
-            not_node = BooleanTreeNode(NodeType.NOT)
-            not_node.value = expression
-            return not_node
+        if self.tokenizer.nextTokenType() == NodeType.NOT:
+            if self.tokenizer.hasNext():
+                self.tokenizer.next()
+                expression = self.parse_condition()
+                not_node = BooleanTreeNode(NodeType.NOT)
+                not_node.value = expression
+                return not_node
+            else:
+                raise Exception("NOT term expects a value next to it. No values where found")
         return self.parse_condition()
 
 

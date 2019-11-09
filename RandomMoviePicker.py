@@ -43,7 +43,7 @@ def get_video_name(path_to_vid):
     return match.group(1)
 
 def get_folder_name(path_to_vid,vid_name):
-    return path_to_vid[:len(path_to_vid) - (len(vid_name)+4)]
+    return path_to_vid[:len(path_to_vid) - (len(vid_name)+5)]
 
 
 def watched_video(video):
