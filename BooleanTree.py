@@ -7,6 +7,7 @@ class NodeType(Enum):
     LEAF = 3
     OPEN_BRACKET = 4
     CLOSE_BRACKET = 5
+    NOT = 6
 
 
 class BooleanTreeNode:
@@ -29,6 +30,9 @@ class BooleanTreeNode:
             left_expression_value = self.left.get_boolean_value(vid)
             right_expression_value = self.right.get_boolean_value(vid)
             return left_expression_value or right_expression_value
+
+        elif self.node_type == NodeType.NOT:
+            return not self.value.get_boolean_value(vid)
 
         else:
             return self.value.lower() in vid.lower()
@@ -63,7 +67,8 @@ class Tokenizer:
                 string += term + " "
             self.expression = string[:-1]
         import re
-        reg = re.compile(r'(\bAND\b|\b&&\b|\b\|\|\b|\bOR\b|\(|\)|\band\b|\bor\b|\bAnd\b|\bOr\b)')
+        reg = re.compile(
+            r'(\bAND\b|\bAnd\b|\band\b|\bOR\b|\bOr\b|\bor\b|\bNOT\b|\bNot\b|\bnot\b| !|\(|\))')
         self.tokens = reg.split(self.expression)
         self.tokens = [t.strip() for t in self.tokens if t.strip() != '']
 
@@ -77,6 +82,8 @@ class Tokenizer:
                 self.tokenTypes.append(NodeType.OPEN_BRACKET)
             elif t == ')':
                 self.tokenTypes.append(NodeType.CLOSE_BRACKET)
+            elif t == 'NOT' or t == 'Not' or t == 'not' or t == '!':
+                self.tokenTypes.append(NodeType.NOT)
             else:
                 # TAG
                 self.tokenTypes.append(NodeType.LEAF)
@@ -92,44 +99,55 @@ class BooleanParser:
         self.parse()
 
     def parse(self):
-        self.root = self.parseExpression()
+        self.root = self.parse_expression()
 
-    def parseExpression(self):
-        andTerm1 = self.parseAndTerm()
+    def parse_expression(self):
+        andTerm1 = self.parse_AND_term()
         while self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == NodeType.OR:
             self.tokenizer.next()
-            andTermX = self.parseAndTerm()
+            andTermX = self.parse_AND_term()
             andTerm = BooleanTreeNode(NodeType.OR)
             andTerm.left = andTerm1
             andTerm.right = andTermX
             andTerm1 = andTerm
         return andTerm1
 
-    def parseAndTerm(self):
-        condition1 = self.parseCondition()
+    def parse_AND_term(self):
+        not1 = self.parse_NOT_term()
         while self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == NodeType.AND:
             self.tokenizer.next()
-            conditionX = self.parseCondition()
+            notX = self.parse_NOT_term()
             condition = BooleanTreeNode(NodeType.AND)
-            condition.left = condition1
-            condition.right = conditionX
-            condition1 = condition
-        return condition1
+            condition.left = not1
+            condition.right = notX
+            not1 = condition
+        return not1
 
-    def parseCondition(self):
+    def parse_NOT_term(self):
+        if self.tokenizer.nextTokenType() == NodeType.NOT and self.tokenizer.hasNext():
+            self.tokenizer.next()
+            expression = self.parse_condition()
+            not_node = BooleanTreeNode(NodeType.NOT)
+            not_node.value = expression
+            return not_node
+        return self.parse_condition()
+
+
+
+    def parse_condition(self):
         if self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == NodeType.OPEN_BRACKET:
             self.tokenizer.next()
-            expression = self.parseExpression()
+            expression = self.parse_expression()
             if self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == NodeType.CLOSE_BRACKET:
                 self.tokenizer.next()
                 return expression
             else:
                 raise Exception("Closing ) expected, but got " + self.tokenizer.next())
 
-        terminal1 = self.parseTerminal()
+        terminal1 = self.parse_terminal()
         return terminal1
 
-    def parseTerminal(self):
+    def parse_terminal(self):
         if self.tokenizer.hasNext():
             tokenType = self.tokenizer.nextTokenType()
             if tokenType == NodeType.LEAF:
@@ -146,8 +164,8 @@ class BooleanParser:
         return self.root.get_boolean_value(vid)
 
 
-# parser = BooleanParser(["horror", "&&", "comedy"])
-# vid = "comedy/horror/les_intouchables"
+# parser = BooleanParser("(horror and !comedy) or (romance and comedy)")
+# vid = "romance/comedy/les_intouchables"
 #
 # print(parser.get_boolean_value(vid))
 #
